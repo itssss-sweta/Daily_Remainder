@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'package:daily_remainder/config/routes/routes.dart';
 import 'package:daily_remainder/core/colors.dart';
+import 'package:daily_remainder/core/constant.dart';
 import 'package:daily_remainder/core/textStyle.dart';
 import 'package:daily_remainder/features/button.dart';
 import 'package:daily_remainder/features/ellipse.dart';
 import 'package:daily_remainder/features/inputbox.dart';
+import 'package:daily_remainder/storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -129,7 +131,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             : Icons.visibility,
                         iconTap: () => _updateconfirm(),
                         error: (value) {
-                          if (_password.value != _conpassword.value) {
+                          if (_password.text != value) {
                             return 'Please re-check your password';
                           }
                           return null;
@@ -142,7 +144,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         text: 'Register',
                         onTap: () {
                           if (_key.currentState?.validate() ?? false) {
-                            Navigator.pushNamed(context, Routes.home);
+                            addRegisterData(_email.text, _password.text);
+                            navigationKey.currentState?.pushNamed(Routes.login);
                           }
                         },
                       ),

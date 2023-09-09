@@ -48,3 +48,22 @@ TextStyle listTextStyle = const TextStyle(
   fontSize: 13,
   fontWeight: FontWeight.bold,
 );
+
+TextStyle taskTextStyle = TextStyle(
+  color: textColor.withOpacity(.8),
+  fontSize: 15,
+  fontWeight: FontWeight.w500,
+);
+
+TextStyle dateTextStyle = TextStyle(
+  color: textColor.withOpacity(.5),
+  fontSize: 14,
+  fontWeight: FontWeight.w600,
+);
+
+TextStyle completedTextStyle = TextStyle(
+  color: textColor.withOpacity(.8),
+  fontSize: 15,
+  fontWeight: FontWeight.w500,
+  decoration: TextDecoration.lineThrough,
+);

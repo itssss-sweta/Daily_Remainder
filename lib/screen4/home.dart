@@ -1,10 +1,14 @@
+import 'package:daily_remainder/config/routes/routes.dart';
 import 'package:daily_remainder/core/colors.dart';
 import 'package:daily_remainder/core/constant.dart';
 import 'package:daily_remainder/core/textstyle.dart';
 import 'package:daily_remainder/core/utils/dialogbox.dart';
+import 'package:daily_remainder/features/tasklist.dart';
 import 'package:daily_remainder/features/ellipse.dart';
 import 'package:daily_remainder/features/switch.dart';
 import 'package:daily_remainder/model/task.dart';
+import 'package:daily_remainder/screen3/login.dart';
+import 'package:daily_remainder/storage.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,21 +19,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // List<Tasks> allTasks = [
-  //   Tasks('Do chores'),
-  // ];
+  LoginPage login = const LoginPage();
+  List<Tasks> allTasks = [];
+  DialogUtils dialogUtils = DialogUtils();
 
-  // void createTask({
-  //   String? task,
-  //   // String? date,
-  //   // String? time,
-  // }) {
-  //   Tasks newTask = Tasks(
-  //     task: task,
-  //     // date: date,
-  //     // time: time,
-  //   );
-  // }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      initializeTask().whenComplete(() {
+        setState(() {
+          allTasks = taskData ?? [];
+        });
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +60,48 @@ class _HomePageState extends State<HomePage> {
                       'Sweta Maharjan',
                       style: buttonTextStyle,
                     ),
-                    const SizedBox(
-                      height: 30,
+                    // const SizedBox(
+                    //   height: 10,
+                    // ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20, bottom: 10),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: GestureDetector(
+                          onTap: () async {
+                            return await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Log out?'),
+                                  content: const Text(
+                                      'Are you sure you want to log out?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        // deleteData();
+                                        Navigator.pushNamed(
+                                            context, Routes.login);
+                                      },
+                                      child: const Text('Yes'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('No'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: const Icon(
+                            Icons.logout_outlined,
+                            color: backgroundColor,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -95,7 +139,9 @@ class _HomePageState extends State<HomePage> {
                             color: listContainerColor,
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 10, top: 10),
+                            padding: const EdgeInsets.only(
+                              left: 10,
+                            ),
                             child: Column(
                               children: [
                                 Padding(
@@ -109,8 +155,24 @@ class _HomePageState extends State<HomePage> {
                                         style: listTextStyle,
                                       ),
                                       InkWell(
-                                        onTap: () {
-                                          showMyDialog(context);
+                                        onTap: () async {
+                                          //gives double value of same id
+                                          // var value = await dialogUtils
+                                          //     .showMyDialog(context);
+                                          // log('value is $value');
+                                          // if (value != null) {
+                                          //   setState(() {
+                                          //     allTasks.add(value);
+                                          //   });
+                                          // }
+
+                                          await dialogUtils
+                                              .showMyDialog(context);
+                                          initializeTask().whenComplete(() {
+                                            setState(() {
+                                              allTasks = taskData ?? [];
+                                            });
+                                          });
                                         },
                                         child: Container(
                                           decoration: const BoxDecoration(
@@ -123,23 +185,11 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                const Expanded(
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      children: [
-                                        ListTile(
-                                          leading: Icon(
-                                            Icons.circle,
-                                            opticalSize: 10,
-                                          ),
-                                          title: Text('Do chores'),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                // const SizedBox(
+                                //   height: 10,
+                                // ),
+                                TaskList(
+                                  allTasks: allTasks,
                                 ),
                               ],
                             ),
@@ -170,26 +220,48 @@ class _HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                ListTile(
-                                  title: Text(
-                                    'Water Reminder',
-                                    style: headStyle,
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: ListTile(
+                                    title: Text(
+                                      'Water Reminder',
+                                      style: headStyle,
+                                    ),
+                                    trailing: const SwitchButton(
+                                      value: 0,
+                                      task: 'Water Reminder',
+                                      body: 'Please drink the water',
+                                    ),
                                   ),
-                                  trailing: const SwitchButton(),
                                 ),
-                                ListTile(
-                                  title: Text(
-                                    'Screen Break',
-                                    style: headStyle,
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: ListTile(
+                                    title: Text(
+                                      'Screen Break',
+                                      style: headStyle,
+                                    ),
+                                    trailing: const SwitchButton(
+                                      value: 1,
+                                      task: 'Screen Break',
+                                      body:
+                                          'Please take a break from the screen',
+                                    ),
                                   ),
-                                  trailing: const SwitchButton(),
                                 ),
-                                ListTile(
-                                  title: Text(
-                                    'Motivational Quotes',
-                                    style: headStyle,
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: ListTile(
+                                    title: Text(
+                                      'Motivational Quotes',
+                                      style: headStyle,
+                                    ),
+                                    trailing: const SwitchButton(
+                                      value: 2,
+                                      task: 'Motivational Quotes',
+                                      body: 'You are doing great',
+                                    ),
                                   ),
-                                  trailing: const SwitchButton(),
                                 ),
                               ],
                             ),

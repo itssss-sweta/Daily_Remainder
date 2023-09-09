@@ -13,6 +13,7 @@ class InputTextBox extends StatefulWidget {
   final bool? isCollapsed;
   final bool? isSmall;
   final bool? readOnly;
+  final Function()? onChanged;
 
   const InputTextBox({
     super.key,
@@ -27,6 +28,7 @@ class InputTextBox extends StatefulWidget {
     this.isCollapsed,
     this.isSmall,
     this.readOnly,
+    this.onChanged,
   });
 
   @override
@@ -55,6 +57,7 @@ class _TextBoxState extends State<InputTextBox> {
                 widget.onTap!();
               }
             },
+            //onChanged: widget.onChanged,
             controller: widget.controller,
             keyboardType: widget.inputType,
             obscureText: widget.obscureText,
@@ -76,7 +79,7 @@ class _TextBoxState extends State<InputTextBox> {
 
               //hintStyle: hintTextStyle,
               contentPadding: widget.isSmall ?? true
-                  ? const EdgeInsets.fromLTRB(10, 10, 10, 10)
+                  ? const EdgeInsets.fromLTRB(30, 20, 20, 20)
                   : const EdgeInsets.symmetric(horizontal: 8),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(40),

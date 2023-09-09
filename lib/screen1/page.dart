@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:daily_remainder/config/routes/routes.dart';
 import 'package:daily_remainder/core/colors.dart';
 import 'package:daily_remainder/core/constant.dart';
@@ -6,6 +5,7 @@ import 'package:daily_remainder/core/textStyle.dart';
 import 'package:daily_remainder/features/button.dart';
 import 'package:daily_remainder/features/ellipse.dart';
 import 'package:flutter/material.dart';
+import '../storage.dart';
 
 class GetStarted extends StatelessWidget {
   const GetStarted({super.key});
@@ -52,8 +52,12 @@ class GetStarted extends StatelessWidget {
                 ButtonTap(
                   text: 'Get Started',
                   onTap: () {
-                    log('hello world');
-                    Navigator.pushNamed(context, Routes.login);
+                    if (retrieveData() != null) {
+                      Navigator.pushNamed(context, Routes.home);
+                    } else {
+                      navigationKey.currentState?.pushNamed(Routes.login);
+                    }
+                    // Navigator.pushNamed(context, Routes.login);
                     // Navigator.push(
                     //   context,
                     //   MaterialPageRoute(
