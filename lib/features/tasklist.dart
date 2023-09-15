@@ -3,18 +3,18 @@ import 'package:daily_remainder/core/colors.dart';
 import 'package:daily_remainder/core/constant.dart';
 import 'package:daily_remainder/core/textstyle.dart';
 import 'package:daily_remainder/core/utils/dialogbox.dart';
-import 'package:daily_remainder/model/cred.dart';
+
 import 'package:daily_remainder/model/task.dart';
 import 'package:flutter/material.dart';
 
 class TaskList extends StatefulWidget {
   final List<Tasks>? allTasks;
-  final List<CredentialsUser>? credentials;
+  // final List<CredentialsUser>? credentials;
 
   const TaskList({
     super.key,
     this.allTasks,
-    this.credentials,
+    // this.credentials,
   });
 
   @override
@@ -24,6 +24,8 @@ class TaskList extends StatefulWidget {
 class _TaskListState extends State<TaskList> {
   // bool completed = false;
   DialogUtils dialogUtils = DialogUtils();
+  int? deleteIndex;
+  Tasks? deleteTasks;
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +74,9 @@ class _TaskListState extends State<TaskList> {
                             value: tasks?.completed ?? false,
                             checkColor: listContainerColor,
                             onChanged: (value) {
-                              log(
-                                'Hello!',
-                              );
                               setState(() {
                                 tasks?.completed = value;
+                                tasks?.checkbox = value;
                               });
                             },
                           ),
@@ -122,13 +122,16 @@ class _TaskListState extends State<TaskList> {
                           GestureDetector(
                             onTap: () {
                               log(tasks!.id.toString());
-                              setState(() {});
-                              var deleteId = tasks.id;
+                              deleteIndex = index;
+                              deleteTasks = tasks;
+                              setState(() {
+                                widget.allTasks?.removeAt(index);
+                              });
 
-                              widget.allTasks!.removeWhere(
-                                  (element) => element.id == deleteId);
-                              widget.allTasks!.indexWhere(
-                                  (element) => element.id == deleteId);
+                              // final deletedTask = widget.allTasks!.removeWhere(
+                              //     (element) => element.id == deleteId);
+                              // final deletedId = widget.allTasks!.indexWhere(
+                              //     (element) => element.id == deleteId);
                               // log(deletedItem.toString());
 
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -136,10 +139,17 @@ class _TaskListState extends State<TaskList> {
                                   content:
                                       const Text('Your task has been deleted'),
                                   action: SnackBarAction(
-                                    label: 'Ok',
+                                    label: 'Undo',
                                     onPressed: () {
-                                      // widget.allTasks![deletedIndex] =
-                                      //     deletedItem;
+                                      if (deleteIndex != null &&
+                                          deleteTasks != null) {
+                                        setState(() {
+                                          widget.allTasks?.insert(
+                                              deleteIndex!, deleteTasks!);
+                                          deleteIndex = 0;
+                                          deleteTasks = Tasks();
+                                        });
+                                      }
                                     },
                                   ),
                                   duration: const Duration(seconds: 2),

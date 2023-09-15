@@ -105,6 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           return null;
                         },
                       ),
+                      // context.read<TaskProvider>(),
                       InputTextBox(
                         hintText: 'Enter password',
                         inputType: TextInputType.visiblePassword,
@@ -137,6 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           return null;
                         },
                       ),
+                      // context.read<TaskProvider>().setEmail(_email.text),
                       const SizedBox(
                         height: 60,
                       ),

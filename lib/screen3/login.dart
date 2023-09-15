@@ -2,13 +2,14 @@ import 'package:daily_remainder/config/routes/routes.dart';
 import 'package:daily_remainder/core/colors.dart';
 import 'package:daily_remainder/core/constant.dart';
 import 'package:daily_remainder/core/textStyle.dart';
+import 'package:daily_remainder/core/utils/provider.dart';
 import 'package:daily_remainder/features/button.dart';
 import 'package:daily_remainder/features/ellipse.dart';
 import 'package:daily_remainder/features/inputbox.dart';
-import 'package:daily_remainder/model/cred.dart';
 import 'package:daily_remainder/storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,8 +22,6 @@ class _LoginPageState extends State<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _key = GlobalKey<FormState>();
-
-  final loginkey = UniqueKey();
   bool _obscureText = true;
 
   void _update() {
@@ -47,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Center(
                   child: Column(
-                    key: loginkey,
+                    // key: loginKey.t,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -104,17 +103,9 @@ class _LoginPageState extends State<LoginPage> {
                         text: 'Login',
                         onTap: () {
                           if (_key.currentState?.validate() ?? false) {
-                            CredentialsUser(
-                              email: _email.text,
-                              password: _password.text,
-                            );
+                            context.read<TaskProvider>().setEmail(_email.text);
 
                             authenticate(context, _email.text, _password.text);
-
-                            // retrieveTask();
-                            // retrieveTask(_email.text);
-
-                            // Navigator.pushNamed(context, Routes.home);
                           }
                         },
                       ),

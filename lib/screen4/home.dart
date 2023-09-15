@@ -3,13 +3,14 @@ import 'package:daily_remainder/core/colors.dart';
 import 'package:daily_remainder/core/constant.dart';
 import 'package:daily_remainder/core/textstyle.dart';
 import 'package:daily_remainder/core/utils/dialogbox.dart';
+import 'package:daily_remainder/core/utils/provider.dart';
 import 'package:daily_remainder/features/tasklist.dart';
 import 'package:daily_remainder/features/ellipse.dart';
 import 'package:daily_remainder/features/switch.dart';
-import 'package:daily_remainder/model/task.dart';
 import 'package:daily_remainder/screen3/login.dart';
 import 'package:daily_remainder/storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,23 +21,39 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   LoginPage login = const LoginPage();
-  List<Tasks> allTasks = [];
+  // List<Tasks> allTasks = [];
   DialogUtils dialogUtils = DialogUtils();
 
   @override
   void initState() {
     super.initState();
+    final taskProvider = context.read<TaskProvider>();
+
+    final email = taskProvider.getemail;
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      initializeTask().whenComplete(() {
-        setState(() {
-          allTasks = taskData ?? [];
-        });
-      });
+      // initializeTask(email).whenComplete(() {
+      //   // setState(() {
+      //   //   allTasks = taskData ?? [];
+      //   // });
+      //   final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+      //   taskProvider.updateTasks(currentUser?.taskData ?? []);
+      // });
+      initializeTask(email).then((tasks) => taskProvider.updateTasks(tasks));
+
+      // initializeUserOldTasks();
+      //   //can use context.read/context.watch instead because stateless
+      //   // final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+      //   final taskProvider = context.read<TaskProvider>();
+      //   taskProvider.updateTasks(taskData ?? []);
+      // });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    final useEmail = taskProvider.getemail;
     return Scaffold(
       body: Stack(
         children: [
@@ -168,11 +185,20 @@ class _HomePageState extends State<HomePage> {
 
                                           await dialogUtils
                                               .showMyDialog(context);
-                                          initializeTask().whenComplete(() {
-                                            setState(() {
-                                              allTasks = taskData ?? [];
-                                            });
-                                          });
+
+                                          initializeTask(useEmail).then(
+                                              (tasks) => taskProvider
+                                                  .updateTasks(tasks));
+
+                                          // setState(() {
+                                          //   allTasks = taskData ?? [];
+                                          // });
+                                          // final taskProvider =
+                                          //     Provider.of<TaskProvider>(
+                                          //         context,
+                                          //         listen: false);
+                                          // taskProvider.updateTasks(
+                                          //     currentUser?.taskData ?? []);
                                         },
                                         child: Container(
                                           decoration: const BoxDecoration(
@@ -185,11 +211,12 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 ),
-                                // const SizedBox(
-                                //   height: 10,
-                                // ),
                                 TaskList(
-                                  allTasks: allTasks,
+                                  allTasks: context
+                                      .watch<TaskProvider>()
+                                      .allTasks
+                                      .where((task) => task.email == useEmail)
+                                      .toList(),
                                 ),
                               ],
                             ),

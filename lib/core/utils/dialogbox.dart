@@ -1,18 +1,22 @@
 import 'dart:developer';
 import 'package:daily_remainder/core/colors.dart';
 import 'package:daily_remainder/core/textstyle.dart';
-import 'package:daily_remainder/features/addtask.dart';
+import 'package:daily_remainder/core/utils/provider.dart';
 import 'package:daily_remainder/features/button.dart';
 import 'package:daily_remainder/features/inputbox.dart';
 import 'package:daily_remainder/model/task.dart';
+import 'package:daily_remainder/screen3/login.dart';
 import 'package:daily_remainder/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DialogUtils {
-  TaskData data = const TaskData();
+  LoginPage emailLogin = const LoginPage();
   // final notifiationsService = NotificationsService();
   Future showMyDialog(BuildContext context, {Tasks? savedtask}) {
+    final emailUser = Provider.of<TaskProvider>(context, listen: false);
+    final useEmail = emailUser.getemail;
     DateTime selectedDate = DateTime.now();
     TimeOfDay selectedTime = TimeOfDay.now();
     final task = TextEditingController();
@@ -112,6 +116,15 @@ class DialogUtils {
                                   initialDate: selectedDate,
                                   firstDate: DateTime(2000),
                                   lastDate: DateTime(2030),
+                                  builder: (context, child) {
+                                    return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: const ColorScheme.light(
+                                            primary: buttonColor,
+                                          ),
+                                        ),
+                                        child: child!);
+                                  },
                                 );
 
                                 if (datePick != null &&
@@ -157,6 +170,15 @@ class DialogUtils {
                                 final timePicked = await showTimePicker(
                                   context: context,
                                   initialTime: selectedTime,
+                                  builder: (context, child) {
+                                    return Theme(
+                                        data: Theme.of(context).copyWith(
+                                          colorScheme: const ColorScheme.light(
+                                            primary: buttonColor,
+                                          ),
+                                        ),
+                                        child: child!);
+                                  },
                                 );
 
                                 if (timePicked != null &&
@@ -187,25 +209,29 @@ class DialogUtils {
                   // if(task)
                   if (key.currentState?.validate() ?? false) {
                     final taskDone = Tasks(
+                      // checkbox: false,
                       task: task.text,
                       date: date.text,
                       time: time.text,
                       id: DateTime.now().millisecondsSinceEpoch,
                       completed: false,
+                      email: useEmail,
                     );
                     // log(taskDone);
 
                     if (savedtask != null) {
                       final taskEditingDone = Tasks(
+                        checkbox: savedtask.checkbox,
                         id: savedtask.id,
                         task: task.text,
                         date: date.text,
                         time: time.text,
                         completed: savedtask.completed,
+                        email: useEmail,
                       );
                       // notificationsService.scheduleNotification(
                       //     taskEditingDone.id ?? 0, 'Notification', task.text);
-                      replaceeditedTask(taskEditingDone);
+                      replaceeditedTask(taskEditingDone, useEmail);
                       // notificationsService.customizeNotification(
                       //             id: Tasks().id,
 
@@ -224,13 +250,13 @@ class DialogUtils {
                       //       tz.getLocation('Nepal/Kathmandu'),
                       //       int.tryParse(date.text.split('-').first) ?? 0),
                       // );
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(taskEditingDone);
                     } else {
-                      addTask(taskDone);
+                      addTask(taskDone, useEmail);
 
                       // notificationsService.scheduleNotification(
                       //     taskDone.id ?? 0, 'Notification', task.text);
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(taskDone);
                     }
                   }
                 },
